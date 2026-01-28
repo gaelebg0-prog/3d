@@ -1,0 +1,5 @@
+{
+  "name": "Maker3D AI",
+  "description": "Une application de conception 3D intuitive pour l'impression 3D avec assistant IA et export STL.",
+  "requestFramePermissions": []
+}

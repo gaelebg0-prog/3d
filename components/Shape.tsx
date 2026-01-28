@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import { ShapeObject } from '../types';
 import * as THREE from 'three';
+import { Outlines } from '@react-three/drei';
 
 interface ShapeProps {
   object: ShapeObject;
@@ -23,6 +24,11 @@ const Shape: React.FC<ShapeProps> = ({ object, isSelected, onSelect }) => {
       case 'dodecahedron': return <dodecahedronGeometry args={[0.5]} />;
       case 'octahedron': return <octahedronGeometry args={[0.5]} />;
       case 'capsule': return <capsuleGeometry args={[0.3, 0.4, 4, 16]} />;
+      case 'tetrahedron': return <tetrahedronGeometry args={[0.5]} />;
+      case 'icosahedron': return <icosahedronGeometry args={[0.5]} />;
+      case 'tube': return <cylinderGeometry args={[0.5, 0.5, 1, 32, 1, true]} />;
+      case 'pyramid': return <coneGeometry args={[0.5, 1, 4]} />;
+      case 'star': return <octahedronGeometry args={[0.5]} />; // Placeholder for star
       default: return <boxGeometry />;
     }
   };
@@ -45,10 +51,11 @@ const Shape: React.FC<ShapeProps> = ({ object, isSelected, onSelect }) => {
       <meshStandardMaterial 
         color={object.color} 
         emissive={isSelected ? object.color : 'black'}
-        emissiveIntensity={isSelected ? 0.5 : 0}
-        roughness={0.2}
-        metalness={0.4}
+        emissiveIntensity={isSelected ? 0.3 : 0}
+        roughness={0.1}
+        metalness={0.6}
       />
+      {isSelected && <Outlines thickness={2} color="#6366f1" />}
     </mesh>
   );
 };

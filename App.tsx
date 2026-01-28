@@ -7,7 +7,7 @@ import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 import AIAssistant from './components/AIAssistant';
 import { ShapeObject, ShapeType } from './types';
-import { Download, Layers, MousePointer2, Type as TypeIcon } from 'lucide-react';
+import { Download, Layers, MousePointer2, Settings2, Palette, Box } from 'lucide-react';
 
 const App: React.FC = () => {
   const [objects, setObjects] = useState<ShapeObject[]>([]);
@@ -21,8 +21,8 @@ const App: React.FC = () => {
       position: [0, 0.5, 0],
       rotation: [0, 0, 0],
       scale: [1, 1, 1],
-      color: '#4f46e5',
-      name: `${type.charAt(0).toUpperCase() + type.slice(1)} ${objects.length + 1}`
+      color: '#6366f1',
+      name: `${type.charAt(0).toUpperCase() + type.slice(1)} #${objects.length + 1}`
     };
     setObjects(prev => [...prev, newObj]);
     setSelectedId(newObj.id);
@@ -35,8 +35,8 @@ const App: React.FC = () => {
       position: (s.position || [0, 0, 0]) as [number, number, number],
       rotation: [0, 0, 0] as [number, number, number],
       scale: (s.scale || [1, 1, 1]) as [number, number, number],
-      color: s.color || '#4f46e5',
-      name: s.name || `Objet IA ${objects.length + i + 1}`
+      color: s.color || '#6366f1',
+      name: s.name || `IA Object ${objects.length + i + 1}`
     }));
     setObjects(prev => [...prev, ...newObjects]);
   }, [objects.length]);
@@ -51,6 +51,7 @@ const App: React.FC = () => {
   }, []);
 
   const exportSTL = () => {
+    if (objects.length === 0) return;
     const exporter = new STLExporter();
     const scene = new THREE.Scene();
 
@@ -66,6 +67,11 @@ const App: React.FC = () => {
         case 'dodecahedron': geometry = new THREE.DodecahedronGeometry(0.5); break;
         case 'octahedron': geometry = new THREE.OctahedronGeometry(0.5); break;
         case 'capsule': geometry = new THREE.CapsuleGeometry(0.3, 0.4, 4, 16); break;
+        case 'tetrahedron': geometry = new THREE.TetrahedronGeometry(0.5); break;
+        case 'icosahedron': geometry = new THREE.IcosahedronGeometry(0.5); break;
+        case 'tube': geometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 32, 1, true); break;
+        case 'pyramid': geometry = new THREE.ConeGeometry(0.5, 1, 4); break;
+        case 'star': geometry = new THREE.OctahedronGeometry(0.5); break;
         default: geometry = new THREE.BoxGeometry(1, 1, 1);
       }
       
@@ -82,7 +88,7 @@ const App: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `design_maker3d_${new Date().getTime()}.stl`;
+    link.download = `MAKER3D_${new Date().toISOString().replace(/[:.]/g, '-')}.stl`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -90,37 +96,53 @@ const App: React.FC = () => {
   const selectedObject = objects.find(o => o.id === selectedId);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 font-sans selection:bg-indigo-500/30">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 h-14 bg-slate-900/40 backdrop-blur-xl border-b border-white/5 z-50 flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Layers size={20} className="text-white" />
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
+      {/* Dynamic Background Decoration */}
+      <div className="fixed top-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
+      <div className="fixed bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
+
+      {/* Header Bar */}
+      <header className="absolute top-0 left-0 right-0 h-16 bg-slate-900/50 backdrop-blur-2xl border-b border-white/5 z-[100] flex items-center justify-between px-8">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-gradient-to-tr from-indigo-500 to-indigo-400 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-500/40 rotate-3">
+            <Layers size={22} className="text-white" />
           </div>
-          <div>
-            <h1 className="font-black text-lg leading-tight tracking-tight text-white">MAKER3D<span className="text-indigo-400">AI</span></h1>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Creative Lab</p>
+          <div className="flex flex-col">
+            <h1 className="font-black text-xl leading-none tracking-tight">MAKER3D<span className="text-indigo-400"> STUDIO</span></h1>
+            <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500 flex items-center gap-1">
+              <Box size={8} /> Prototypage IA Rapide
+            </span>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-[10px] text-slate-400 font-medium border border-white/10 uppercase tracking-wider">
-            <MousePointer2 size={12} className="text-indigo-400" />
-            <span>Sélectionne pour éditer</span>
+          <div className="hidden lg:flex items-center gap-4 px-4 py-2 bg-white/5 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
+              <MousePointer2 size={12} className="text-indigo-400" />
+              <span>Clic Gauche: Sélectionner</span>
+            </div>
+            <div className="w-px h-3 bg-white/10" />
+            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
+              <Settings2 size={12} className="text-indigo-400" />
+              <span>Clic Droit: Pivoter Caméra</span>
+            </div>
           </div>
+          
           <button 
             onClick={exportSTL}
             disabled={objects.length === 0}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-xl shadow-indigo-500/20 active:scale-95"
+            className="group relative overflow-hidden bg-white text-slate-950 px-6 py-2.5 rounded-2xl text-sm font-black transition-all hover:scale-105 active:scale-95 disabled:opacity-30 disabled:grayscale shadow-2xl"
           >
-            <Download size={18} />
-            Exporter STL
+            <div className="relative z-10 flex items-center gap-2">
+              <Download size={18} />
+              Exporter STL
+            </div>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Main Layout */}
-      <div className="flex flex-1 pt-14">
+      {/* Main UI Body */}
+      <div className="flex flex-1 pt-16 h-full w-full">
         <Sidebar 
           objects={objects} 
           selectedId={selectedId}
@@ -131,7 +153,7 @@ const App: React.FC = () => {
           setTransformMode={setTransformMode}
         />
         
-        <main className="flex-1 bg-slate-950 relative overflow-hidden">
+        <main className="flex-1 relative bg-[#020617]">
           <Editor 
             objects={objects}
             selectedId={selectedId}
@@ -140,54 +162,46 @@ const App: React.FC = () => {
             updateObject={handleUpdateObject}
           />
 
-          {/* Bottom Selection Info Bar */}
+          {/* Bottom Control Bar */}
           {selectedId && selectedObject && (
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-slate-900/60 backdrop-blur-2xl border border-white/10 p-5 rounded-3xl shadow-2xl flex items-center gap-10 min-w-[580px] ring-1 ring-white/5">
-                <div className="flex flex-col gap-1 min-w-[140px]">
-                  <span className="text-[10px] uppercase font-black text-slate-500 tracking-widest flex items-center gap-1">
-                    <TypeIcon size={10} className="text-indigo-400" /> Identification
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 glass-panel p-6 rounded-3xl shadow-2xl flex items-center gap-10 min-w-[700px] border border-white/10 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="flex flex-col gap-2 flex-1">
+                  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1.5">
+                    <Palette size={12} /> Personnalisation
                   </span>
-                  <input
-                    type="text"
-                    value={selectedObject.name}
-                    onChange={(e) => handleUpdateObject(selectedId, { name: e.target.value })}
-                    className="bg-slate-800/50 border border-white/5 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500/50 w-full"
-                  />
-                </div>
-
-                <div className="h-10 w-px bg-white/5" />
-
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Coordonnées</span>
-                  <div className="flex gap-2">
-                     {['X','Y','Z'].map((axis, i) => (
-                       <div key={axis} className="bg-slate-800/50 px-2.5 py-1.5 rounded-lg text-xs border border-white/5 flex items-center">
-                         <span className="text-indigo-400 font-black mr-1.5">{axis}</span>
-                         <span className="text-white font-mono">{selectedObject.position[i].toFixed(1)}</span>
-                       </div>
-                     ))}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 flex flex-col gap-1">
+                      <span className="text-[9px] text-slate-500 uppercase font-bold">Identifiant Unique</span>
+                      <div className="bg-slate-800/80 rounded-xl px-3 py-2 text-xs font-mono text-slate-400 border border-white/5">
+                        {selectedId.split('-')[0]}...
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] text-slate-500 uppercase font-bold">Couleur</span>
+                      <div className="flex items-center gap-2 bg-slate-800/80 p-1 rounded-xl border border-white/5">
+                        <input 
+                          type="color" 
+                          value={selectedObject.color}
+                          onChange={(e) => handleUpdateObject(selectedId, { color: e.target.value })}
+                          className="w-10 h-8 bg-transparent border-none cursor-pointer rounded-lg overflow-hidden"
+                        />
+                        <span className="text-[10px] font-mono text-white pr-2 uppercase">{selectedObject.color}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="h-10 w-px bg-white/5" />
+                <div className="h-14 w-px bg-white/10" />
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-500 tracking-widest">Apparence</span>
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-24 h-9">
-                      <input 
-                        type="color" 
-                        value={selectedObject.color}
-                        onChange={(e) => handleUpdateObject(selectedId, { color: e.target.value })}
-                        className="absolute inset-0 w-full h-full bg-transparent border-none cursor-pointer p-0 opacity-0 z-10"
-                      />
-                      <div 
-                        className="w-full h-full rounded-lg border border-white/10 shadow-inner flex items-center justify-center text-[10px] font-bold"
-                        style={{ backgroundColor: selectedObject.color, color: parseInt(selectedObject.color.slice(1), 16) > 0xffffff / 2 ? 'black' : 'white' }}
-                      >
-                        {selectedObject.color.toUpperCase()}
-                      </div>
-                    </div>
+                <div className="flex flex-col gap-2">
+                  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Transformations</span>
+                  <div className="flex gap-2">
+                     {['X','Y','Z'].map((axis, i) => (
+                       <div key={axis} className="bg-slate-800/80 px-3 py-2 rounded-xl text-xs border border-white/5 flex flex-col items-center min-w-[60px]">
+                         <span className="text-indigo-400 font-black text-[8px] mb-1">{axis} AXIS</span>
+                         <span className="text-white font-mono font-bold">{selectedObject.position[i].toFixed(1)}</span>
+                       </div>
+                     ))}
                   </div>
                 </div>
             </div>

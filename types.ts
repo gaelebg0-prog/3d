@@ -1,5 +1,19 @@
 
-export type ShapeType = 'box' | 'sphere' | 'cylinder' | 'cone' | 'torus' | 'torusKnot' | 'dodecahedron' | 'octahedron' | 'capsule';
+export type ShapeType = 
+  | 'box' 
+  | 'sphere' 
+  | 'cylinder' 
+  | 'cone' 
+  | 'torus' 
+  | 'torusKnot' 
+  | 'dodecahedron' 
+  | 'octahedron' 
+  | 'capsule' 
+  | 'tetrahedron' 
+  | 'icosahedron' 
+  | 'tube' 
+  | 'pyramid'
+  | 'star';
 
 export interface ShapeObject {
   id: string;
